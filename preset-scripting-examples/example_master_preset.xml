@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<presets xmlns="http://josm.openstreetmap.de/tagging-preset-1.0" 
+    shortdescription="Examples of using javascript in Vespucci presets"
+    description="">
+<!--
+
+    Format description: https://josm.openstreetmap.de/wiki/TaggingPresets
+-->
+  <!--  Groups -->
+  <group name="chech_date examples" icon="">
+  <!--  these examples use the java Date class as this seems to be simpler than using JS directly -->
+        <item name="check_date simple" icon="" type="node,way,closedway,relation" preset_name_label="true">
+            <link href="http://wiki.openstreetmap.org/wiki/Key:check_date" />
+            <text key="check_date" text="Automatic check_date generation"
+              javascript="df = new java.text.SimpleDateFormat('yyyy-MM-dd');df.format(new java.util.Date());" />	
+        </item> <!-- check_date example simple -->
+        <item name="check_date example advanced" icon="" type="node,way,closedway,relation" preset_name_label="true">
+            <link href="http://wiki.openstreetmap.org/wiki/Key:check_date" />
+        	<text key="automatic_check_date" javascript="
+function addCheckDate(key) {
+  df = new java.text.SimpleDateFormat('yyyy-MM-dd');
+  v = new java.util.ArrayList();
+  v.add(df.format(new java.util.Date()));
+  tags.put('check_date:'+key,v);
+}
+
+for (var key in Iterator(new  java.util.HashSet(tags.keySet()))) {
+  if (!key.contains('check_date')) {
+    newValues = tags.get(key);
+    if (newValues != null && newValues.size() > 0) {
+      oldValues = originalTags.get(key);
+      if (newValues.size() !== oldValues.size()) {
+        addCheckDate(key);
+      } else {
+        for (i=0;i<newValues.size();i++) {
+          if (newValues.get(i) !== oldValues.get(i)) {
+            addCheckDate(key);
+            break;
+          }
+        }
+      }
+    }
+  }
+}
+tags.remove('automatic_check_date');"
+        	text="Automatic check_date generation"/>	
+		</item> <!-- check_date example advanced -->
+    </group> <!-- check_date examples -->
+</presets>

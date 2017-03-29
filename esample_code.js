@@ -61,3 +61,22 @@ for (var key in Iterator(new java.util.HashSet(tags.keySet()))) {
   }
 }
 tags.remove('automatic_check_date');"
+
+// example 
+// update existing check_date tags
+//
+// NOTE: actually doing this is likely a bad idea
+//
+function addCheckDate(key) {
+  df = new java.text.SimpleDateFormat('yyyy-MM-dd');
+  v = new java.util.ArrayList();
+  v.add(df.format(new java.util.Date()));
+  tags.put('check_date:'+key,v);
+}
+
+for (var key in Iterator(new java.util.HashSet(tags.keySet()))) {
+  if (key.startsWith('check_date')) {
+    addCheckDate(key);
+  }
+}
+tags.remove('automatic_check_date');"

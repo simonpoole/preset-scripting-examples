@@ -84,11 +84,13 @@ tags.remove('automatic_check_date');"
 // example
 // set object to lifecycle disused state
 //
+// currently the Preset objects are not accessible to the script so object keys need to be listed here
+//
 var objects = ['shop','amenity','leisure','military'];
 
 function isObject(key) {
   var objectsLength = objects.length;
-  for (var i = 0; i &lt; objectsLength; i++) {
+  for (var i = 0; i < objectsLength; i++) {
     if (objects[i].equals(key)) {
             return true;
     }
@@ -103,3 +105,32 @@ for (var key in Iterator(new java.util.HashSet(tags.keySet()))) {
   }
 }
 tags.remove('set_to_disused');
+
+// example
+// set object to lifecycle disused state and remove any other keys except those that start with "building"
+//
+// currently the Preset objects are not accessible to the script so object keys need to be listed here
+//
+var objects = ['shop','amenity','leisure','military'];
+
+function isObject(key) {
+  var objectsLength = objects.length;
+  for (var i = 0; i < objectsLength; i++) {
+    if (objects[i].equals(key)) {
+            return true;
+    }
+  }
+  return false;
+}
+
+for (var key in Iterator(new java.util.HashSet(tags.keySet()))) {
+  if (isObject(key)) {
+    tags.put('disused:'+key,tags.get(key));
+  }
+  // it would be more elegant if we could use preset matching to determine
+  // which tags should be removed
+  if (!key.startsWith('building') && !key.startsWith('roof')) {
+    tags.remove(key);
+  }
+}
+tags.remove('set_to_disused_remove_tags');

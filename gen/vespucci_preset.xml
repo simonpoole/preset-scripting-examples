@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<presets xmlns="http://josm.openstreetmap.de/tagging-preset-1.0" 
+    shortdescription="javascript in Vespucci presets examples"
+    description="Note these examples do not necessarily make sense from a tagging pov">
+<!--
+
+    Format description: https://josm.openstreetmap.de/wiki/TaggingPresets
+-->
+  <!--  Groups -->
+  <group name="check_date examples" icon="javascript.png">
+  <!--  these examples use the java Date class as this seems to be simpler than using JS directly -->
+        <item name="check_date simple" icon="javascript.png" type="node,way,closedway,relation" preset_name_label="true">
+            <link href="http://wiki.openstreetmap.org/wiki/Key:check_date" />
+            <!-- this script will only be run the first time the preset is run --> 
+            <text key="check_date" text="Automatic check_date generation"
+              javascript="
+df = new java.text.SimpleDateFormat('yyyy-MM-dd');df.format(new java.util.Date());" />	
+        </item> <!-- check_date example simple -->
+       <item name="check_date example all" icon="javascript.png" type="node,way,closedway,relation" preset_name_label="true">
+            <link href="http://wiki.openstreetmap.org/wiki/Key:check_date" />
+            <!-- originalTags and tags are java.util.Map<String,ArrayList<String>>, originalTags are the tags 
+                 before the PropertyEditor was started, tags are the current values, by removing the key at the 
+                 end of the script it can be re-run without manually reseting the value, &, <, > need to be escaped -->
+        	<text key="automatic_check_date" javascript="
+function addCheckDate(key) {
+  df = new java.text.SimpleDateFormat('yyyy-MM-dd');
+  v = new java.util.ArrayList();
+  v.add(df.format(new java.util.Date()));
+  tags.put('check_date:'+key,v);
+}
+
+for (var key in Iterator(new java.util.HashSet(tags.keySet()))) {
+  if (!key.contains('check_date')) {
+    newValues = tags.get(key);
+    if (newValues != null &amp;&amp; newValues.size() &gt; 0) {
+      oldValues = originalTags.get(key);
+      addCheckDate(key);
+    }
+  }
+}
+tags.remove('automatic_check_date');"
+        	text="Automatic check_date generation"/>	
+		</item> <!-- check_date example all -->
+        <item name="check_date example all changed" icon="javascript.png" type="node,way,closedway,relation" preset_name_label="true">
+            <link href="http://wiki.openstreetmap.org/wiki/Key:check_date" />
+            <!-- originalTags and tags are java.util.Map<String,ArrayList<String>>, originalTags are the tags 
+                 before the PropertyEditor was started, tags are the current values, by removing the key at the 
+                 end of the script it can be re-run without manually reseting the value, &, <, > need to be escaped -->
+        	<text key="automatic_check_date" javascript="
+function addCheckDate(key) {
+  df = new java.text.SimpleDateFormat('yyyy-MM-dd');
+  v = new java.util.ArrayList();
+  v.add(df.format(new java.util.Date()));
+  tags.put('check_date:'+key,v);
+}
+
+for (var key in Iterator(new java.util.HashSet(tags.keySet()))) {
+  if (!key.contains('check_date')) {
+    newValues = tags.get(key);
+    if (newValues != null &amp;&amp; newValues.size() &gt; 0) {
+      oldValues = originalTags.get(key);
+      if (newValues.size() !== oldValues.size()) {
+        addCheckDate(key);
+      } else {
+        for (i=0;i&lt;newValues.size();i++) {
+          if (!newValues.get(i).equals(oldValues.get(i))) {
+            addCheckDate(key);
+            break;
+          }
+        }
+      }
+    }
+  }
+}
+tags.remove('automatic_check_date');"
+        	text="Automatic check_date generation"/>	
+		</item> <!-- check_date example all changed -->
+		<item name="check_date example update existing" icon="javascript.png" type="node,way,closedway,relation" preset_name_label="true">
+            <link href="http://wiki.openstreetmap.org/wiki/Key:check_date" />
+            <!-- originalTags and tags are java.util.Map<String,ArrayList<String>>, originalTags are the tags 
+                 before the PropertyEditor was started, tags are the current values, by removing the key at the 
+                 end of the script it can be re-run without manually reseting the value, &, <, > need to be escaped -->
+        	<text key="automatic_check_date" javascript="
+function addCheckDate(key) {
+  df = new java.text.SimpleDateFormat('yyyy-MM-dd');
+  v = new java.util.ArrayList();
+  v.add(df.format(new java.util.Date()));
+  tags.put(key,v);
+}
+
+for (var key in Iterator(new java.util.HashSet(tags.keySet()))) {
+  if (key.startsWith('check_date')) {
+    addCheckDate(key);
+  }
+}
+tags.remove('automatic_check_date');"
+        	text="Automatic check_date generation"/>	
+		</item> <!-- check_date example update existing -->
+    </group> <!-- check_date examples -->
+    <group name="life cycle examples" icon="javascript.png">
+        <item name="Set to disused" icon="javascript.png" type="node,way,closedway,relation" preset_name_label="true">
+            <link href="http://wiki.openstreetmap.org/wiki/Key:check_date" />
+            <!-- originalTags and tags are java.util.Map<String,ArrayList<String>>, originalTags are the tags 
+                 before the PropertyEditor was started, tags are the current values, by removing the key at the 
+                 end of the script it can be re-run without manually reseting the value, &, <, > need to be escaped -->
+            <text key="set_to_disused" javascript="
+var objects = ['shop','amenity','leisure','military'];
+
+function isObject(key) {
+  var objectsLength = objects.length;
+  for (var i = 0; i &lt; objectsLength; i++) {
+    if (objects[i].equals(key)) {
+            return true;
+    }
+  }
+  return false;
+}
+
+for (var key in Iterator(new java.util.HashSet(tags.keySet()))) {
+  if (isObject(key)) {
+    tags.put('disused:'+key,tags.get(key));
+    tags.remove(key);
+  }
+}
+tags.remove('set_to_disused');" />
+        </item>
+        <item name="Set to disused (remove tags)" icon="javascript.png" type="node,way,closedway,relation" preset_name_label="true">
+            <link href="http://wiki.openstreetmap.org/wiki/Key:check_date" />
+            <!-- originalTags and tags are java.util.Map<String,ArrayList<String>>, originalTags are the tags 
+                 before the PropertyEditor was started, tags are the current values, by removing the key at the 
+                 end of the script it can be re-run without manually reseting the value, &, <, > need to be escaped -->
+            <text key="set_to_disused_remove_tags" javascript="
+var objects = ['shop','amenity','leisure','military'];
+
+function isObject(key) {
+  var objectsLength = objects.length;
+  for (var i = 0; i &lt; objectsLength; i++) {
+    if (objects[i].equals(key)) {
+            return true;
+    }
+  }
+  return false;
+}
+
+for (var key in Iterator(new java.util.HashSet(tags.keySet()))) {
+  if (isObject(key)) {
+    tags.put('disused:'+key,tags.get(key));
+  }
+  if (!key.startsWith('building') &amp;&amp; !key.startsWith('roof')) {
+    tags.remove(key);
+  }
+}
+tags.remove('set_to_disused_remove_tags');" />
+        </item>
+    </group>
+</presets>

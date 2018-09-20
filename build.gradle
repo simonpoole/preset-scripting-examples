@@ -1,0 +1,122 @@
+/*
+ */
+ 
+apply plugin: 'java'
+
+repositories {
+	jcenter()
+	maven { url 'https://dl.bintray.com/content/simonpoole/osm' }
+}
+
+ext {
+	preset_file = 'example_master_preset.xml'
+	vespucci_preset_file = 'vespucci_preset.xml'
+	presetBasename = 'script_examples'
+}
+
+dependencies {
+	runtime 'ch.poole:preset-utils:0.0.10'
+	runtime 'commons-cli:commons-cli:1.4'
+}
+
+
+defaultTasks 'generateAllPresetTypes'
+
+task copyCss(type: Copy) {
+	from zipTree(project.configurations.runtime.filter{it.name.startsWith('preset-utils')}.singleFile)
+    include "preset.css"
+    into new File(projectDir.getPath() + '/website')
+}
+
+task copyResources(type: Copy) {
+	from zipTree(project.configurations.runtime.filter{it.name.startsWith('preset-utils')}.singleFile)
+    include "josm-preset-1.0.xlmns"
+    include "vespucci-preset-1.0.xlmns"
+	include "toJOSM.xslt"
+    into new File(buildDir.getPath() + '/xml')
+}
+
+task updateWebsite(dependsOn: ["copyCss"], type: JavaExec) {
+    main = "ch.poole.osm.presetutils.Preset2Html"
+    classpath = configurations.runtime
+    args('-input',    preset_file,
+    	 '-output',   'index.html',
+    	 '-vespucci', 'https://github.com/simonpoole/' + project.name + '/raw/gh-pages/gen/' + presetBasename + '.zip')
+}
+updateWebsite.group = 'preset utils'
+updateWebsite.description = 'Update the website'
+
+task updatePot(type: JavaExec) {
+    main = "ch.poole.osm.presetutils.Preset2Pot"
+    classpath = configurations.runtime
+    args('-input',  preset_file,
+    	 '-output', 'i18n/preset.pot')
+}
+updatePot.group = 'preset utils'
+updatePot.description = 'Update the translation template'
+
+task updateTranslations(type: Exec) {
+	if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
+    	commandLine 'cmd', '/c', 'tx.exe', 'pull', '-a'
+	} else {
+    	commandLine 'tx', 'pull', '-a'
+	}
+}
+updateTranslations.group = 'transifex'
+updateTranslations.description = 'Update translations by executing the transifex tx utility'
+
+// tasks to generate a zipped preset for vespucci
+task vespucciIcons(type: Copy) {
+  from projectDir
+  include preset_file
+  into 'gen'
+  filteringCharset = 'UTF-8'
+  rename (preset_file, vespucci_preset_file)
+  expand([
+    ICONPATH: '',
+    ICONTYPE: 'png'
+  ])
+}
+
+task generateAndValidateVespucci(dependsOn: ["vespucciIcons","copyResources"], type: Exec) {
+	def input = 'gen/' + vespucci_preset_file
+	mkdir('gen')
+	if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
+    	// validation
+    	commandLine 'cmd', '/c', 'xmlstarlet', 'val', '-s', 'build/xml/vespucci-preset-1.0.xlmns', '-e', input
+	} else {
+    	// validation
+    	commandLine 'xmlstarlet', 'val', '-s', 'build/xml/vespucci-preset-1.0.xlmns', '-e', input
+	}	
+}
+
+task vespucciZip(dependsOn: ["generateAndValidateVespucci"], type: Zip) {
+    baseName presetBasename
+    destinationDir = new File(projectDir, 'gen')
+    from ('icons/png')
+    from ('gen/' + vespucci_preset_file)
+    from ('i18n')
+    exclude ('*.pot')
+}
+vespucciZip.group = 'preset'
+vespucciZip.description = 'Generate zipped preset file for vespucci'
+
+task vespucciNoTranslationsZip(dependsOn: ["generateAndValidateVespucci"], type: Zip) {
+    baseName 'vespucci_zip_no_translations'
+    destinationDir = new File(projectDir, 'gen')
+    from ('icons/png')
+    from ('gen/' + vespucci_preset_file)
+}
+vespucciNoTranslationsZip.group = 'preset'
+vespucciNoTranslationsZip.description = 'Generate zipped preset file for vespucci without translations'
+
+// generate everything
+task generateAllPresetTypes {
+	dependsOn "vespucciNoTranslationsZip"
+	dependsOn "vespucciZip" 
+	dependsOn "updatePot"
+	dependsOn "updateWebsite"
+} 
+generateAllPresetTypes.group = 'preset'
+generateAllPresetTypes.description = 'Generate all preset types'
+

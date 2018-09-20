@@ -80,3 +80,26 @@ for (var key in Iterator(new java.util.HashSet(tags.keySet()))) {
   }
 }
 tags.remove('automatic_check_date');"
+
+// example
+// set object to lifecycle disused state
+//
+var objects = ['shop','amenity','leisure','military'];
+
+function isObject(key) {
+  var objectsLength = objects.length;
+  for (var i = 0; i &lt; objectsLength; i++) {
+    if (objects[i].equals(key)) {
+            return true;
+    }
+  }
+  return false;
+}
+
+for (var key in Iterator(new java.util.HashSet(tags.keySet()))) {
+  if (isObject(key)) {
+    tags.put('disused:'+key,tags.get(key));
+    tags.remove(key);
+  }
+}
+tags.remove('set_to_disused');

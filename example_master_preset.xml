@@ -149,6 +149,7 @@ for (var key in Iterator(new java.util.HashSet(tags.keySet()))) {
   if (isObject(key)) {
     tags.put('disused:'+key,tags.get(key));
     presetItem = key2PresetItem.get(key);
+    tags.remove(key);
   }
   if (typeof versionCode !== 'undefined' &amp;&amp; versionCode &gt; 703) {
     if (presetItem !== null &amp;&amp; presetItem.equals(key2PresetItem.get(key))) {

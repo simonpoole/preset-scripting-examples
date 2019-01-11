@@ -160,4 +160,23 @@ for (var key in Iterator(new java.util.HashSet(tags.keySet()))) {
 tags.remove('set_to_disused_remove_tags');" />
         </item>
     </group>
+    <group name="address examples" icon="${ICONPATH}javascript.${ICONTYPE}">
+        <item name="addr:street -> addr:place" icon="${ICONPATH}javascript.${ICONTYPE}" type="node,way,closedway,relation" preset_name_label="true">
+            <link href="http://wiki.openstreetmap.org/wiki/Key:check_date" />
+            <!-- originalTags and tags are java.util.Map<String,ArrayList<String>>, originalTags are the tags 
+                 before the PropertyEditor was started, tags are the current values, by removing the key at the 
+                 end of the script it can be re-run without manually reseting the value, &, <, > need to be escaped -->
+            <text key="street_place_script" javascript="
+
+for (var key in Iterator(new java.util.HashSet(tags.keySet()))) {
+  if (key.equals('addr:street')) {
+    tags.put('addr:place',tags.get(key));
+    tags.remove(key);
+    break;
+  }
+}
+tags.remove('street_place_script');"
+            text="Change addr:street to addr:place"/>    
+        </item> <!-- check_date example update existing -->
+    </group>  
 </presets>

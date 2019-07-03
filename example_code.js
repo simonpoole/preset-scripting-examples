@@ -143,7 +143,7 @@ tags.remove('set_to_disused_remove_tags');
 //
 // currently the Preset objects are not accessible to the script so object keys need to be listed here
 // safe version of the above that will only remove keys if they matched the same preset
-var objects = ['shop','amenity','leisure','military'];
+var objects = ['shop','amenity','leisure','military','man_made','tourism'];
 
 function isObject(key) {
   var objectsLength = objects.length;

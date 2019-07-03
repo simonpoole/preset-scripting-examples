@@ -104,7 +104,7 @@ tags.remove('automatic_check_date');"
                  before the PropertyEditor was started, tags are the current values, by removing the key at the 
                  end of the script it can be re-run without manually reseting the value, &, <, > need to be escaped -->
             <text key="set_to_disused" javascript="
-var objects = ['shop','amenity','leisure','military'];
+var objects = ['shop','amenity','leisure','military','man_made','tourism'];
 
 function isObject(key) {
   var objectsLength = objects.length;

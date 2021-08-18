@@ -4,8 +4,7 @@
 apply plugin: 'java'
 
 repositories {
-	jcenter()
-	maven { url 'https://dl.bintray.com/content/simonpoole/osm' }
+	mavenCentral()
 }
 
 ext {
@@ -15,7 +14,7 @@ ext {
 }
 
 dependencies {
-	runtime 'ch.poole:preset-utils:0.0.10'
+	runtime 'ch.poole:preset-utils:0.23.2'
 	runtime 'commons-cli:commons-cli:1.4'
 }
 
